@@ -1,0 +1,56 @@
+/**
+ * This Source Code Form is subject to the terms of the Mozilla Public License,
+ * v. 2.0. If a copy of the MPL was not distributed with this file, You can
+ * obtain one at http://mozilla.org/MPL/2.0/. OpenMRS is also distributed under
+ * the terms of the Healthcare Disclaimer located at http://openmrs.org/license.
+ *
+ * Copyright (C) OpenMRS Inc. OpenMRS is a registered trademark and the OpenMRS
+ * graphic logo is a trademark of OpenMRS Inc.
+ */
+package org.openmrs.report;
+
+import java.util.Iterator;
+import java.util.Map;
+
+import org.simpleframework.xml.Root;
+
+/**
+ * Implementations of this interface represent the equivalent of a spreadsheet of data, i.e. columns
+ * and rows. Typically subclasses will implement DataSet<Object>, but if all the cells in a table
+ * have the same datatype, the subclass could implement DataSet<ThatType>, like for example
+ * {@link CohortDataSet}. This is one of three interfaces that work together to define and evaluate
+ * an OpenMRS DataSet. You need to implement all three of DataSetProvider, {@link DataSetDefinition}
+ * , and {@link DataSet} in order to get useful behavior. For example:
+ * {@link RowPerObsDataSetProvider}, {@link RowPerObsDataSetDefinition}, and
+ * {@link RowPerObsDataSet} The metadata that describes what data will be produced is defined in
+ * {@link DataSetDefinition} The logic that evaluates that metadata goes in an implementation of
+ * {@link DataSetProvider}. After evaluation, the data is represented by an implementation of this
+ * interface.
+ * 
+ * @see DataSetProvider
+ * @see DataSetDefinition
+ * @deprecated see reportingcompatibility module
+ */
+@Root
+@Deprecated
+public interface DataSet<T extends Object> extends Iterable<Map<String, T>> {
+	
+	/**
+	 * @return The definition that was evaluated to produce this data set.
+	 */
+	public DataSetDefinition getDefinition();
+	
+	/**
+	 * @return The evaluationContext where this DataSet was evaluated.
+	 */
+	public EvaluationContext getEvaluationContext();
+	
+	/**
+	 * The keys of the maps that this iterator returns are given by
+	 * this.getDefinition().getColumnKeys()
+	 * 
+	 * @return an iterator over the rows in this dataset.
+	 */
+	public Iterator<Map<String, T>> iterator();
+	
+}
