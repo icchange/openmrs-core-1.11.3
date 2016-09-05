@@ -16,10 +16,11 @@
 		</div>
 	</div>
 </c:if>
+<openmrs:userProperty key="defaultLocation" defaultValue="" var="userlocation" />
 
 <%-- Header showing preferred name, id, and treatment status --%>
 <div id="patientHeader" class="boxHeader${model.patientVariation}">
-<div id="patientHeaderPatientName"><c:out value="${model.patient.personName}" /></div>
+<div id="patientHeaderPatientName"><a target="_self" href="${pageContext.request.contextPath}/patientDashboard.form?patientId=${model.patient.id}"><c:out value="${model.patient.personName}" /></a></div>
 <div id="patientHeaderPreferredIdentifier">
 	<c:if test="${fn:length(model.patient.activeIdentifiers) > 0}">
 		<c:forEach var="identifier" items="${model.patient.activeIdentifiers}"
@@ -223,7 +224,6 @@
 	</div>
 </c:if>
 
-
 <c:if test="${visitsEnabled }">
 <c:choose>
 <c:when test="${model.patient.dead==false}">
@@ -298,11 +298,13 @@
 					<openmrs:message code="general.toDate" />
 					<openmrs:formatDate date="${ visit.stopDatetime }" showTodayOrYesterday="true" />
 				</c:if>
+				<c:if test="${visit.location.id == userlocation}">
 				<openmrs:hasPrivilege privilege="Edit Visits">
 					<input type="button" value="<openmrs:message code="Visit.edit"/>"
 						onclick="window.location='<openmrs:contextPath />/admin/visits/visit.form?visitId=${ visit.visitId }&patientId=<c:out value="${model.patient.patientId}" />'" />
 					<input type="button" value="<openmrs:message code="Visit.end"/>" onclick="patientHeaderEndVisit('${visit.visitId}', '<openmrs:formatDate date="${visit.stopDatetime}" format="dd/MM/yyyy HH:mm" />');" />
 				</openmrs:hasPrivilege>
+				</c:if>
 				<br />&nbsp;
 				<c:if test="${empty visit.nonVoidedEncounters}">
 					<i><openmrs:message code="Encounter.noEncounters" /></i>

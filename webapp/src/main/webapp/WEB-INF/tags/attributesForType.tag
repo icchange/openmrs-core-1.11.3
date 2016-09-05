@@ -43,7 +43,8 @@ if (attributeType.isRetired()) {
             </c:if>
         </c:when>
         <c:otherwise>
-            <th><c:out value="${ attributeType.name }"/></th>
+	<!-- warning couldnt find out how to make the asterix appear when attribute is required so I had it set via id. hack level very dirty. -->
+            <th><c:out value="${ attributeType.name }"/><c:if test="${attributeType.id == 1}"><span class="required">*</span></c:if></th>
         </c:otherwise>
      </c:choose>
     <td>

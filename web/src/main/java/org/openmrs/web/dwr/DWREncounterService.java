@@ -13,6 +13,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Vector;
+import java.util.ArrayList;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -23,6 +24,7 @@ import org.openmrs.api.EncounterService;
 import org.openmrs.api.LocationService;
 import org.openmrs.api.context.Context;
 import org.openmrs.messagesource.MessageSourceService;
+import org.openmrs.util.OpenmrsConstants;
 
 public class DWREncounterService {
 	
@@ -78,7 +80,7 @@ public class DWREncounterService {
 	@SuppressWarnings("rawtypes")
 	public Vector findBatchOfEncountersByPatient(String phrase, Integer patientId, boolean includeVoided, Integer start,
 	        Integer length) throws APIException {
-		
+		String userloc = Context.getAuthenticatedUser().getUserProperty(OpenmrsConstants.USER_PROPERTY_DEFAULT_LOCATION);
 		// List to return
 		// Object type gives ability to return error strings
 		Vector<Object> objectList = new Vector<Object>();
@@ -96,6 +98,9 @@ public class DWREncounterService {
 			if (phrase.matches("\\d+")) {
 				// user searched on a number.  Insert concept with corresponding encounterId
 				Encounter e = es.getEncounter(Integer.valueOf(phrase));
+				if (e != null && e.getLocation().getId() != Integer.parseInt(userloc)) {
+					e = null;
+				}
 				if (e != null && (patientId == null || patientId.equals(e.getPatient().getPatientId()))) {
 					if (!e.isVoided() || includeVoided == true) {
 						encs.add(e);
@@ -106,7 +111,14 @@ public class DWREncounterService {
 			if (phrase.equals("")) {
 				//TODO get all concepts for testing purposes?
 			} else {
-				encs.addAll(es.getEncounters(phrase, patientId, start, length, includeVoided));
+				List<Encounter> eTestList = es.getEncounters(phrase, patientId, start, length, includeVoided);
+				List<Encounter> eRestrictedList = new ArrayList<Encounter>();
+				for (int i = 0; i < eTestList.size(); i++) {
+					if (eTestList.get(i).getLocation().getId() == Integer.parseInt(userloc)) {
+						eRestrictedList.add(eTestList.get(i));
+					}
+				}
+				encs.addAll(eRestrictedList);
 			}
 			
 			if (encs.size() == 0) {

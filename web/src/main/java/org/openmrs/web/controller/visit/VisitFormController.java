@@ -29,6 +29,7 @@ import org.openmrs.VisitType;
 import org.openmrs.api.APIException;
 import org.openmrs.api.EncounterService;
 import org.openmrs.api.context.Context;
+import org.openmrs.util.OpenmrsConstants;
 import org.openmrs.validator.EncounterValidator;
 import org.openmrs.validator.VisitValidator;
 import org.openmrs.web.WebConstants;
@@ -84,6 +85,9 @@ public class VisitFormController {
 		}
 		
 		addEncounterAndObservationCounts(visit, null, model);
+		String location = Context.getAuthenticatedUser().getUserProperty(OpenmrsConstants.USER_PROPERTY_DEFAULT_LOCATION);
+		model.addAttribute("locationvalue", location);
+		model.addAttribute("locationname", Context.getLocationService().getLocation(Integer.parseInt(location)));
 		return VISIT_FORM;
 	}
 	

@@ -131,6 +131,8 @@ $j(document).ready( function() {
 	<br/>
 </c:if>
 
+<c:if test="${visit.visitId == null || locationvalue == visit.location.id}">
+
 <form:form method="post" action="visit.form" modelAttribute="visit">
 	<c:if test="${visit.patient.patientId != null}">
 	<a href="<openmrs:contextPath/>/patientDashboard.form?patientId=<c:out value="${visit.patient.patientId}" />">
@@ -233,8 +235,9 @@ $j(document).ready( function() {
 		<tr>
 			<th><openmrs:message code="Visit.location"/></th>
 			<td>
+				
 				<spring:bind path="location">
-				<openmrs_tag:locationField formFieldName="${status.expression}" initialValue="${status.value}"/>
+				<openmrs_tag:locationField formFieldName="${status.expression}" initialValue="${status.value}" restricted="${locationvalue}"/>
 				<c:if test="${status.errorMessage != ''}"><span class="error">${status.errorMessage}</span></c:if>
 				</spring:bind>
 			</td>
@@ -406,5 +409,19 @@ $j(document).ready( function() {
 		</table>
 	</form:form>
 </div>
+
+</c:if>
+<c:if test="${visit.visitId != null && locationvalue != visit.location.id}">
+	<c:if test="${visit.patient.patientId != null}">
+	<a href="<openmrs:contextPath/>/patientDashboard.form?patientId=<c:out value="${visit.patient.patientId}" />">
+		<openmrs:message code="PatientDashboard.backToPatientDashboard"/>
+	</a>
+	</c:if>
+<br/>
+<br/>
+
+Visits are location restricted and you currently arent of the right user location to be able to edit this visit. This visit belongs to ${visit.location} and you are currently from ${locationname}.
+
+</c:if>
 
 <%@ include file="/WEB-INF/template/footer.jsp" %>
