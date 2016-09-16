@@ -420,7 +420,7 @@ $j(document).ready( function() {
 <br/>
 <br/>
 
-Visits are location restricted and you currently arent of the right user location to be able to edit this visit. This visit belongs to ${visit.location} and you are currently from ${locationname}.
+Visits are location restricted and you currently aren't of the right user location to be able to edit this visit. This visit belongs to ${visit.location} and you are currently from ${locationname}.
 
 </c:if>
 

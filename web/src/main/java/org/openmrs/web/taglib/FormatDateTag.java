@@ -134,7 +134,7 @@ public class FormatDateTag extends TagSupport {
 		}
 		
 		if (dateFormat == null) {
-			dateFormat = new SimpleDateFormat("MM-dd-yyyy");
+			dateFormat = new SimpleDateFormat("dd-MM-yyyy");
 		}
 		
 		String datestr = "";
@@ -149,9 +149,15 @@ public class FormatDateTag extends TagSupport {
 						//print only time of day but maintaining the format(24 Vs 12) if any was specified
 						String timeFormatString = (format != null && !format.contains("a")) ? "HH:mm" : "h:mm a";
 						dateFormat = new SimpleDateFormat(timeFormatString);
+						
+						SimpleDateFormat dateformat2 = new SimpleDateFormat("dd-MM-yyyy");
+						
+						/*problem in that its not dispalying a date just general.today in the interface
+						*
+						*/
 						if (DateUtils.isSameDay(Calendar.getInstance().getTime(), date)) {
-							datestr = Context.getMessageSourceService().getMessage("general.today") + " "
-							        + dateFormat.format(date);
+							//datestr = Context.getMessageSourceService().getMessage("general.today") + " "
+							datestr = dateformat2.format(date) + " " + dateFormat.format(date);
 						} else {
 							datestr = Context.getMessageSourceService().getMessage("general.yesterday") + " "
 							        + dateFormat.format(date);

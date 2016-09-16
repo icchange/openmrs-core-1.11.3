@@ -241,14 +241,16 @@
 		<openmrs:htmlInclude file="/scripts/timepicker/timepicker.js" />
 		
 		<div id="patientHeader-endvisit-dialog" title="<openmrs:message code="Visit.end"/>">
-		    <form:form action="${pageContext.request.contextPath}/admin/visits/endVisit.form" method="post" modelAttribute="visit">
+		    <form:form action="${pageContext.request.contextPath}/admin/visits/endVisit.form?patientId=${model.patient.patientId}" method="post" modelAttribute="visit">
 		       <table cellpadding="3" cellspacing="3" align="center">
 					<tr>
 						<td>
 							<input type="hidden" name="visitId" value="" />
+							<intput type="hidden" name="patientId" value="${model.patient.patientId}" />
 							<openmrs:message code="Visit.enterEndDate"/>
 							<jsp:useBean id="now" class="java.util.Date" scope="page" />
-							<input type="text" id="enddate_visit" size="20" name="stopDate" value="<openmrs:formatDate date="${now}" format="dd/MM/yyyy HH:mm"/>" onClick="showDateTimePicker(this)" readonly="readonly"/></br>&nbsp;&nbsp;
+<!-- modufied showdatetimepicker because it was the wrong format. kmri 975 -->
+							<input type="text" id="enddate_visit" size="20" name="stopDate" value="<openmrs:formatDate date="${now}" format="dd/MM/yyyy HH:mm"/>" <% /*onClick="showDateTimePicker(this)"*/ %> readonly="readonly"/></br>&nbsp;&nbsp;
 						</td>
 					</tr>
 					<tr height="20"></tr>
@@ -261,8 +263,13 @@
 					</tr>
 				</table>
 			</form:form>
-		</div>
+		</div>		
 		<script type="text/javascript">	
+		function myJQueryCode() {
+			//if(!$j("#patientHeader-endvisit-dialog").hasClass('ui-dialog-content')){
+		    		var headTag = document.getElementsByTagName("head")[0];
+		    		loadjqueryui(headTag);
+			//}
 			$j(document).ready( function() {
 				$j("#patientHeader-endvisit-dialog").dialog({
 					autoOpen: false,
@@ -272,16 +279,66 @@
 					modal: true
 				});
 				$j('#patientHeader-close-endvisit-dialog').click(function() {
-					$j('#patientHeader-endvisit-dialog').dialog('close')
+					$j("#patientHeader-endvisit-dialog").dialog('close');
+				});
+				//$j('#enddate_visit').timepicker();
+				$j('#enddate_visit').datetimepicker({
+				   dateFormat: 'dd/mm/yy',
+				   //format:'dd/MM/yyyy HH:mm:ss',
+				   minDate: getFormattedDate(new Date())	
 				});
 			});
-			function patientHeaderEndVisit(visitId, stopVisitDate) {
-				$j("input[name=visitId]", "#patientHeader-endvisit-dialog").val(visitId);
-				if (stopVisitDate) {
-					$j("input[name=stopDate]", "#patientHeader-endvisit-dialog").val(stopVisitDate);
-				}
-				$j('#patientHeader-endvisit-dialog').dialog('open');
+			console.log("test");
+		}
+		
+		function getFormattedDate(date) {
+		    var day = date.getDate();
+		    var month = date.getMonth() + 1;
+		    var year = date.getFullYear().toString().slice(2);
+		    return day + '-' + month + '-' + year;
+		}
+
+		/*
+		*
+		*/
+		function patientHeaderEndVisit(visitId, stopVisitDate) {
+			$j("input[name=visitId]", "#patientHeader-endvisit-dialog").val(visitId);
+			if (stopVisitDate) {
+				$j("input[name=stopDate]", "#patientHeader-endvisit-dialog").val(stopVisitDate);
 			}
+			$j('#patientHeader-endvisit-dialog').dialog('open');
+		}
+
+
+		/*
+		* loads the jquery ui libaries so that they wont conflict with the rest of the already loaded libraries.
+		*/
+		function loadjqueryui(head){
+		    var jquiTag = document.createElement('script');
+		    jquiTag.type = 'text/javascript';
+		    jquiTag.src = '${pageContext.request.contextPath}/scripts/jquery-ui/js/jquery-ui.custom.min.js?v=1.11.3-0';
+		    head.appendChild(jquiTag);
+		    var jquidateTag = document.createElement('script');
+		    jquidateTag.type = 'text/javascript';
+		    jquidateTag.src = '${pageContext.request.contextPath}/scripts/jquery-ui/js/jquery-ui-datepicker-i18n.js?v=1.11.3-0';
+		    head.appendChild(jquidateTag);
+		    var jquitimeTag = document.createElement('script');
+		    jquitimeTag.type = 'text/javascript';
+		    jquitimeTag.src = '${pageContext.request.contextPath}/scripts/jquery-ui/js/jquery-ui-timepicker-addon.js?v=1.11.3-0';
+		    head.appendChild(jquitimeTag);
+		}
+
+		if(typeof jQuery=='undefined') {
+		    var headTag = document.getElementsByTagName("head")[0];
+		    var jqTag = document.createElement('script');
+		    jqTag.type = 'text/javascript';
+		    jqTag.src = '${pageContext.request.contextPath}/scripts/jquery/jquery.min.js?v=1.11.3';
+		    headTag.appendChild(jqTag);
+
+		}
+	
+		var $j = jQuery.noConflict();		
+		myJQueryCode();
 		</script>
 	
 		<c:forEach var="visit" items="${model.activeVisits}">

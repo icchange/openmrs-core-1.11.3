@@ -10,6 +10,7 @@
 package org.openmrs.web.controller.visit;
 
 import java.text.ParseException;
+import java.lang.Exception;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -17,6 +18,7 @@ import java.lang.String;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+import java.text.SimpleDateFormat;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.logging.Log;
@@ -108,6 +110,7 @@ public class VisitFormController {
 	
 	@RequestMapping(value = VISIT_END_URL)
 	public String endVisitNow(@ModelAttribute("visit") Visit visit, HttpSession session) {
+		System.out.println("end visit now");
 		visit.setStopDatetime(new Date());
 		Context.getVisitService().saveVisit(visit);
 		session.setAttribute(WebConstants.OPENMRS_MSG_ATTR, "Visit.ended");
@@ -129,12 +132,20 @@ public class VisitFormController {
 	@RequestMapping(method = RequestMethod.POST, value = VISIT_FORM_URL)
 	public String saveVisit(HttpServletRequest request, @ModelAttribute("visit") Visit visit, BindingResult result,
 	        ModelMap model) {
+		System.out.println("save visit");
+		
+		//add location information to form. form requires this information as of kmri 782
+		String location = Context.getAuthenticatedUser().getUserProperty(OpenmrsConstants.USER_PROPERTY_DEFAULT_LOCATION);
+		model.addAttribute("locationvalue", location);
+		model.addAttribute("locationname", Context.getLocationService().getLocation(Integer.parseInt(location)));
+		
 		String[] ids = ServletRequestUtils.getStringParameters(request, "encounterIds");
 		List<Integer> encounterIds = new ArrayList<Integer>();
 		EncounterService es = Context.getEncounterService();
 		List<Encounter> encountersToSave = new ArrayList<Encounter>();
 		if (!ArrayUtils.isEmpty(ids)) {
 			for (String id : ids) {
+				System.out.println("save visit util 1");
 				if (StringUtils.hasText(id)) {
 					encounterIds.add(Integer.valueOf(id));
 				}
@@ -142,6 +153,7 @@ public class VisitFormController {
 			//validate that the encounters
 			List<Encounter> visitEncounters = (List<Encounter>) model.get("visitEncounters");
 			for (Encounter e : visitEncounters) {
+				System.out.println("save visit ep 1");
 				if (!encounterIds.contains(e.getEncounterId())) {
 					//this encounter was removed in the UI, remove it from this visit
 					e.setVisit(null);
@@ -160,6 +172,7 @@ public class VisitFormController {
 			
 			//the remaining encounterIds are for the newly added ones, validate and associate them to this visit
 			for (Integer encounterId : encounterIds) {
+				System.out.println("save visit ep 2");
 				Encounter e = es.getEncounter(encounterId);
 				if (e != null) {
 					e.setVisit(visit);
@@ -174,6 +187,7 @@ public class VisitFormController {
 			}
 		}
 		
+		System.out.println("save visit bp 1 " + visit.getId());
 		// manually handle the attribute parameters
 		List<VisitAttributeType> attributeTypes = (List<VisitAttributeType>) model.get("attributeTypes");
 		
@@ -181,6 +195,7 @@ public class VisitFormController {
 		new VisitValidator().validate(visit, result);
 		if (!result.hasErrors()) {
 			try {
+				System.out.println("save visit bp 2 " + visit.getId());
 				Context.getVisitService().saveVisit(visit);
 				if (log.isDebugEnabled()) {
 					log.debug("Saved visit: " + visit.toString());
@@ -190,7 +205,7 @@ public class VisitFormController {
 				for (Encounter encounter : encountersToSave) {
 					es.saveEncounter(encounter);
 				}
-				
+				System.out.println("save visit bp 3 " + visit.getId());
 				return "redirect:" + "/patientDashboard.form?patientId=" + visit.getPatient().getPatientId();
 			}
 			catch (APIException e) {
@@ -198,8 +213,9 @@ public class VisitFormController {
 				request.getSession().setAttribute(WebConstants.OPENMRS_ERROR_ATTR, "Visit.save.error");
 			}
 		}
-		
+		System.out.println("save visit bp 4 " + visit.getId());
 		addEncounterAndObservationCounts(visit, encounterIds, model);
+		System.out.println("save visit bp 5 " + visit.getId());
 		return VISIT_FORM;
 	}
 	
@@ -212,20 +228,55 @@ public class VisitFormController {
 	 */
 	@RequestMapping(method = RequestMethod.POST, value = "/admin/visits/endVisit")
 	public String endVisit(@ModelAttribute(value = "visit") Visit visit,
-	        @RequestParam(value = "stopDate", required = false) String stopDate, HttpServletRequest request) {
+	        @RequestParam(value = "stopDate", required = false) String stopDate, ModelMap model, HttpServletRequest request) {
+		System.out.println("end visit " + stopDate);
+		String location = Context.getAuthenticatedUser().getUserProperty(OpenmrsConstants.USER_PROPERTY_DEFAULT_LOCATION);
+		model.addAttribute("locationvalue", location);
+		model.addAttribute("locationname", Context.getLocationService().getLocation(Integer.parseInt(location)));
 		
 		if (!StringUtils.hasLength(stopDate)) {
 			Context.getVisitService().endVisit(visit, null);
 		} else {
+			//start of algorithm to convert date string to java date object
+			
+			//the date string could be a couple of different format. 
+			//possible formats should be listed from most complex to least complex.
+			List<SimpleDateFormat> dateformatters = new ArrayList<SimpleDateFormat>();
+			dateformatters.add(new SimpleDateFormat("dd/MM/yyyy HH:mm a"));
+			dateformatters.add(new SimpleDateFormat("dd/MM/yyyy HH:mm"));
+			
+			//attempt to convert the date to one of our formats.
+			Date enddate = null;
+			for (int i = 0; i < dateformatters.size() && enddate == null; i++) {
+				try {
+					enddate = dateformatters.get(i).parse(stopDate);
+				}
+				catch (Exception e) {
+					enddate = null;
+				}
+			}
+			
 			try {
-				Context.getVisitService().endVisit(visit, Context.getDateTimeFormat().parse(stopDate));
+				
+				//if date didnt succesfully convert throw an error.
+				if (enddate == null) {
+					throw new Exception("Could not convert stopdate " + stopDate);
+				}
+				System.out.println("end date value: " + stopDate + " " + enddate.toString());
+				
+				//Context.getVisitService().endVisit(visit, Context.getDateTimeFormat().parse(stopDate));
+				Context.getVisitService().endVisit(visit, enddate);
 				request.getSession().setAttribute(WebConstants.OPENMRS_MSG_ATTR, "Visit.saved");
 				return "redirect:" + "/patientDashboard.form?patientId=" + visit.getPatient().getPatientId();
 			}
 			catch (ParseException pe) {
+				pe.printStackTrace();
 				request.getSession().setAttribute(WebConstants.OPENMRS_ERROR_ATTR, "error.date");
 			}
 			catch (APIException e) {
+				request.getSession().setAttribute(WebConstants.OPENMRS_ERROR_ATTR, e.getMessage());
+			}
+			catch (Exception e) {
 				request.getSession().setAttribute(WebConstants.OPENMRS_ERROR_ATTR, e.getMessage());
 			}
 		}
@@ -246,7 +297,9 @@ public class VisitFormController {
 	@RequestMapping(method = RequestMethod.POST, value = "/admin/visits/voidVisit")
 	public String voidVisit(WebRequest request, @ModelAttribute(value = "visit") Visit visit,
 	        @RequestParam(required = false, value = "voidReason") String voidReason, SessionStatus status, ModelMap model) {
+		System.out.println("void visit");
 		if (!StringUtils.hasText(voidReason)) {
+			
 			voidReason = Context.getMessageSourceService().getMessage("general.default.voidReason");
 		}
 		
@@ -282,6 +335,7 @@ public class VisitFormController {
 	@RequestMapping(method = RequestMethod.POST, value = "/admin/visits/unvoidVisit")
 	public String unvoidVisit(WebRequest request, @ModelAttribute(value = "visit") Visit visit, SessionStatus status,
 	        ModelMap model) {
+		System.out.println("un void visit");
 		try {
 			Context.getVisitService().unvoidVisit(visit);
 			if (log.isDebugEnabled()) {
@@ -314,6 +368,7 @@ public class VisitFormController {
 	@RequestMapping(method = RequestMethod.POST, value = "/admin/visits/purgeVisit")
 	public String purgeVisit(WebRequest request, @ModelAttribute(value = "visit") Visit visit, SessionStatus status,
 	        ModelMap model) {
+		System.out.println("purge Visit");
 		try {
 			Integer patientId = visit.getPatient().getPatientId();
 			Context.getVisitService().purgeVisit(visit);
