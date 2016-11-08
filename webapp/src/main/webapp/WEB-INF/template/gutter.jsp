@@ -5,8 +5,9 @@
 	<li id="homeNavLink" class="firstChild">
 		<a href="${pageContext.request.contextPath}/"><openmrs:message code="Navigation.home"/></a>
 	</li>
-
+	<openmrs:hasPrivilege privilege="Find/Create Patient Link">
 	<li id="findPatientNavLink">
+	
 		<a href="${pageContext.request.contextPath}/findPatient.htm">
 			<openmrs:hasPrivilege privilege="Add Patients">
 				<openmrs:message code="Navigation.findCreatePatient"/>
@@ -15,8 +16,9 @@
 				<openmrs:message code="Navigation.findPatient"/>
 			</openmrs:hasPrivilege>
 		</a>
+		
 	</li>
-	
+	</openmrs:hasPrivilege>
 	<openmrs:hasPrivilege privilege="View Concepts">
 		<li id="dictionaryNavLink">
 			<a href="${pageContext.request.contextPath}/dictionary"><openmrs:message code="Navigation.dictionary"/></a>

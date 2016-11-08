@@ -350,10 +350,10 @@
 					<openmrs:message code="general.atLocation" />
 					<strong><openmrs:format location="${ visit.location }" /></strong></c:if>
 				<openmrs:message code="general.fromDate" />
-				<openmrs:formatDate date="${ visit.startDatetime }" showTodayOrYesterday="true" />
+				<openmrs:formatDate date="${ visit.startDatetime }" format="dd-MM-yyyy HH:mm" showTodayOrYesterday="true" />
 				<c:if test="${not empty visit.stopDatetime }">
 					<openmrs:message code="general.toDate" />
-					<openmrs:formatDate date="${ visit.stopDatetime }" showTodayOrYesterday="true" />
+					<openmrs:formatDate date="${ visit.stopDatetime }" format="dd-MM-yyyy HH:mm" showTodayOrYesterday="true" />
 				</c:if>
 				<c:if test="${visit.location.id == userlocation}">
 				<openmrs:hasPrivilege privilege="Edit Visits">

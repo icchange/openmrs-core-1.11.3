@@ -47,6 +47,8 @@ public class PatientProgram extends BaseOpenmrsData implements java.io.Serializa
 	
 	private Set<PatientState> states = new HashSet<PatientState>();
 	
+	private String description;
+	
 	// ******************
 	// Constructors
 	// ******************
@@ -403,5 +405,13 @@ public class PatientProgram extends BaseOpenmrsData implements java.io.Serializa
 		List<PatientState> sortedStates = new ArrayList<PatientState>(getStates());
 		Collections.sort(sortedStates);
 		return sortedStates;
+	}
+	
+	public String getDescription() {
+		return description;
+	}
+	
+	public void setDescription(String description) {
+		this.description = description;
 	}
 }

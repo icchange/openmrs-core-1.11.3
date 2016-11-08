@@ -60,6 +60,8 @@ public class PatientProgramFormController implements Controller {
 		String enrollmentDateStr = request.getParameter("dateEnrolled");
 		String locationIdStr = request.getParameter("locationId");
 		String completionDateStr = request.getParameter("dateCompleted");
+		String description = request.getParameter("description");
+		System.out.println("!!!! description " + description);
 		
 		log.debug("enroll " + patientIdStr + " in " + programIdStr + " on " + enrollmentDateStr);
 		
@@ -100,6 +102,7 @@ public class PatientProgramFormController implements Controller {
 			pp.setProgram(program);
 			pp.setDateEnrolled(enrollmentDate);
 			pp.setDateCompleted(completionDate);
+			pp.setDescription(description);
 			
 			// Set any initial states if passed in
 			for (ProgramWorkflow workflow : program.getAllWorkflows()) {

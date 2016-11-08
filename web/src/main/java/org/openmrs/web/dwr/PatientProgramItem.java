@@ -47,6 +47,8 @@ public class PatientProgramItem {
 	
 	private Map<String, Integer> workflows; // workflow name -> programWorkflowId
 	
+	private String description;
+	
 	public PatientProgramItem() {
 	}
 	
@@ -71,6 +73,7 @@ public class PatientProgramItem {
 		for (ProgramWorkflow wf : p.getProgram().getWorkflows()) {
 			workflows.put(wf.getConcept().getName(Context.getLocale(), false).getName(), wf.getProgramWorkflowId());
 		}
+		description = p.getDescription();
 	}
 	
 	public Map<String, Integer> getWorkflows() {
@@ -207,5 +210,13 @@ public class PatientProgramItem {
 	 */
 	public void setLocation(LocationListItem location) {
 		this.location = location;
+	}
+	
+	public String getDescription() {
+		return description;
+	}
+	
+	public void setDescription(String description) {
+		this.description = description;
 	}
 }

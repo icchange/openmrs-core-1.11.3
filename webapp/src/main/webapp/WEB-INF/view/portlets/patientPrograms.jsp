@@ -6,6 +6,7 @@
 <openmrs:htmlInclude file="/dwr/engine.js" />
 <openmrs:htmlInclude file="/dwr/util.js" />
 
+
 <script type="text/javascript">
 	function isEmpty(o) {
 		return o == null || o == '';
@@ -77,6 +78,7 @@
 		var endDate = parseDate(jQuery('#completionDateElement').val());
 		var locationId = jQuery('#programLocationElement').val();
 		var outcomeId = jQuery('#programOutcomeConceptElement').val();
+		var description = jQuery('#descriptionElement').val();
         if (!isEmpty(endDate) && !$j('#editProgramOutcomeRow').is(':hidden')
 				&& outcomeId == '') {
 			alert("<openmrs:message code="PatientProgram.error.outcomeRequired" />");
@@ -85,7 +87,7 @@
 		} else {
 			currentProgramBeingEdited = null;
 			DWRProgramWorkflowService.updatePatientProgram(idToSave, formatDate(startDate, 'yyyy-mm-dd'),
-					formatDate(endDate, 'yyyy-mm-dd'), locationId, outcomeId, function() {
+					formatDate(endDate, 'yyyy-mm-dd'), locationId, outcomeId, description, function() {
 						hideLayer('editPatientProgramPopup');
 						refreshPage();
 					});
@@ -259,9 +261,11 @@
 				.getPatientProgram(
 						patientProgramId,
 						function(program) {
+							console.log(program);
 							jQuery('#programNameElement').html(program.name);
 							jQuery('#enrollmentDateElement').val(formatDate(program.dateEnrolled));
 							jQuery('#completionDateElement').val(formatDate(program.dateCompleted));
+							jQuery('#descriptionElement').val(program.description);
 							if (!isEmpty(program.dateCompletedAsYmd))
 								$j('#programOutcomeConceptElement').attr(
 										'disabled', false);
@@ -326,6 +330,7 @@
 		<tr>
 			<td><openmrs:message code="Program.location"/>:</td>
 			<td>
+				<openmrs:hasPrivilege privilege="Change location" >
 				<select name="locationId" id="programLocationElement">
 					<option value=""><openmrs:message code="Program.location.choose"/></option>
 					<c:forEach var="location" items="${model.locations}">
@@ -334,11 +339,23 @@
 						</c:if>
 					</c:forEach>
 					<c:forEach var="location" items="${model.locations}">
+						
 						<c:if test="${location.retired}">
 							<option value="${location.locationId}">${location.displayString} (<openmrs:message code="general.retired"/>)</option>
 						</c:if>
 					</c:forEach>
 				</select>
+				</openmrs:hasPrivilege>
+				<openmrs:hasPrivilege privilege="Change location" inverse="true">
+					<openmrs:userProperty key="defaultLocation" defaultValue="" var="userlocation"/>
+					<input name="locationId" id="programLocationElement" type="hidden" value="${userlocation}" />
+					<c:forEach var="location" items="${model.locations}">
+						<c:if test="${location.locationId == userlocation}">
+							${location.displayString}
+						</c:if>
+					</c:forEach>
+				</openmrs:hasPrivilege>
+
 			</td>
 		</tr>
 		<tr>
@@ -346,10 +363,21 @@
 			<td><input type="text" id="enrollmentDateElement" size="10" onfocus="showCalendar(this)" /></td>
 		</tr>
 		<tr>
-			<td><openmrs:message code="Program.dateCompleted"/>:</td>
+			<td><!--<openmrs:message code="Program.dateCompleted"/>-->Exit Date:</td>
 			<td><input type="text" id="completionDateElement" size="10" onfocus="showCalendar(this)" /></td>
 		</tr>
-        <tr id="editProgramOutcomeRow">
+		<tr>
+			<td>Reason for exit:</td>
+			<td>
+				<select id="descriptionElement" name="description">
+					<option></option>
+					<option value="completed program">completed program</option>
+					<option value="loss to follow-up">loss to follow-up</option>
+					<option value="transferred from program">transferred from program</option>
+				</select>
+			</td>
+		</tr>
+        	<tr id="editProgramOutcomeRow">
 			<td><openmrs:message code="Program.outcome"/>:</td>
 			<td>
 				<select name="outcomeConceptId" id="programOutcomeConceptElement"/>
@@ -417,7 +445,7 @@
 				<td><openmrs:message code="Program.program"/></td>
 				<td><openmrs:message code="Program.dateEnrolled"/></td>
 				<td><openmrs:message code="Program.location"/></td>
-				<td><openmrs:message code="Program.dateCompleted"/></td>
+				<td><!-- <openmrs:message code="Program.dateCompleted"/> -->Exit Date</td>
 				<td><openmrs:message code="Program.state"/></td>
 				<td><openmrs:message code="Program.outcome"/></td>
 			</tr>
@@ -431,11 +459,18 @@
 					<tr style="background-color: ${bgColor}">
 						<td valign="top">
 							<c:if test="${program.dateCompleted != null}">
-								<small><i>[<openmrs:message code="Program.completed"/>]</i></small>
+								<!-- <small><i>[<openmrs:message code="Program.completed"/>]</i></small> -->
 							</c:if>
-							<a href="javascript:showEditPatientProgramPopup(${program.patientProgramId})">
-							<openmrs:format program="${program.program}" caseConversion="global"/>
-							</a>
+							<c:choose>
+								<c:when test="${ program.location == model.userlocation}">
+									<a href="javascript:showEditPatientProgramPopup(${program.patientProgramId})">
+									<openmrs:format program="${program.program}" caseConversion="global"/>
+									</a>
+								</c:when>
+								<c:otherwise>
+									<openmrs:format program="${program.program}" caseConversion="global"/>
+								</c:otherwise>
+							</c:choose>
 						</td>
 						<td align="left" valign="top">
 							<openmrs:formatDate date="${program.dateEnrolled}" type="medium" />
@@ -484,8 +519,10 @@
 														<i>(<openmrs:message code="general.none" />)</i>
 													</c:otherwise>
 												</c:choose>
-																					  <c:if test="${program.dateCompleted == null}">
-													<a href="javascript:showEditWorkflowPopup('<openmrs:concept conceptId="${workflow.concept.conceptId}" nameVar="n" var="v" numericVar="nv">${n.name}</openmrs:concept>', ${program.patientProgramId}, ${workflow.programWorkflowId})">[<openmrs:message code="general.edit"/>]</a>
+									  													<c:if test="${program.dateCompleted == null}">
+													<c:if test="${ program.location == model.userlocation}">
+														<a href="javascript:showEditWorkflowPopup('<openmrs:concept conceptId="${workflow.concept.conceptId}" nameVar="n" var="v" numericVar="nv">${n.name}</openmrs:concept>', ${program.patientProgramId}, ${workflow.programWorkflowId})">[<openmrs:message code="general.edit"/>]</a>
+													</c:if>
 												</c:if>
 											</td>
 										</tr>
@@ -495,6 +532,9 @@
 						</td>
                         <td>
                             <c:choose>
+				<c:when test="${not empty program.description}">
+					${program.description}
+				</c:when>
                                 <c:when test="${not empty program.outcome}">
                                     <openmrs:format concept="${program.outcome}"/>
                                 </c:when>
@@ -543,8 +583,12 @@
 	});
 
 	function handleEnrollInProgram() {
+		console.log();
 		if ($j('#programSelector').val() == ""){
 			alert('<openmrs:message code="Program.error.programRequired" />');
+		}
+		else if($j('#locationId').val() == ""){
+			alert('No location set. Please select a location.');
 		}
 		else{
 			$j('#enrollForm').submit();
@@ -579,25 +623,47 @@
 				<td><openmrs_tag:dateField formFieldName="dateEnrolled" startValue="" /></td>
 			</tr>
 			<tr>
-				<td nowrap><openmrs:message code="Program.dateCompleted"/>:</td>
+				<td nowrap><!--<openmrs:message code="Program.dateCompleted"/>-->Exit Date:</td>
 				<td><openmrs_tag:dateField formFieldName="dateCompleted" startValue="" /></td>
+			</tr>
+			<tr>
+				<td>Reason for exit:</td>
+				<td>
+					<select id="description" name="description">
+						<option></option>
+						<option value="completed program">completed program</option>
+						<option value="loss to follow-up">loss to follow-up</option>
+						<option value="transferred from program">transferred from program</option>
+					</select>
+				</td>
 			</tr>
 			<tr>
 				<td nowrap><openmrs:message code="Program.location"/>:</td>
 				<td>
-					<select name="locationId">
+					<openmrs:hasPrivilege privilege="Change location" >
+					<select id="locationId" name="locationId">
 						<option value=""><openmrs:message code="Program.location.choose"/></option>
 						<c:forEach var="location" items="${model.locations}">
 							<c:if test="${!location.retired}">
-							  <option value="${location.locationId}">${location.displayString}</option>
+							  <option value="${location.locationId}" <c:if test="${location.displayString == model.userlocation}">selected="selected"</c:if>>${location.displayString}</option>
 							</c:if>
 						</c:forEach>
 						<c:forEach var="location" items="${model.locations}">
 							<c:if test="${location.retired}">						
-								<option value="${location.locationId}">${location.displayString} (<openmrs:message code="general.retired"/>)</option>						
+								<option value="${location.locationId}" <c:if test="${location.displayString == model.userlocation}">selected="selected"</c:if>>${location.displayString}(<openmrs:message code="general.retired"/>)</option>						
 							</c:if>
 						</c:forEach>
-					</select>				
+					</select>
+					</openmrs:hasPrivilege>
+					<openmrs:hasPrivilege privilege="Change location" inverse="true">
+						<openmrs:userProperty key="defaultLocation" defaultValue="" var="userlocation"/>
+						<input name="locationId" id="programLocationElement" type="hidden" value="${userlocation}" />
+						<c:forEach var="location" items="${model.locations}">
+							<c:if test="${location.locationId == userlocation}">
+								${location.displayString}
+							</c:if>
+						</c:forEach>
+					</openmrs:hasPrivilege>				
 				</td>
 			</tr>
 			<tr><td colspan="2">&nbsp;</td></tr>

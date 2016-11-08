@@ -8603,5 +8603,11 @@
 			oldColumnName="quantity" newColumnName="strength" columnDataType="double"/>
 	</changeSet>
 
+    <changeSet id="kmri-646-20162710-1" author="Mark Nicoll">
+        <comment>Adding description to patient program </comment>
+        <addColumn tableName="patient_program">
+            <column name="description" type="varchar(255)" />
+        </addColumn>
+    </changeSet>
 
 </databaseChangeLog>

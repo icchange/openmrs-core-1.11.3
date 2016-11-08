@@ -5,7 +5,6 @@
 <%@ include file="/WEB-INF/template/header.jsp" %>
 
 <openmrs:htmlInclude file="/scripts/calendar/calendar.js" />
-
 <script type="text/javascript">
 	//variable to cache the id of the checkbox of the selected preferred patientIdentifier
 	var prefIdentifierElementId = null;
@@ -28,23 +27,37 @@
 		tbody.appendChild(newrow);
 		var inputs = newrow.getElementsByTagName("input");
 		var selects = newrow.getElementsByTagName("select");
+		var divs = newrow.getElementsByTagName("div");
+		for (var i in divs){
+			var div = divs[i];
+			if(div && divs[i].title  == "location"){
+				div.id = 'identifiers' + index + '_location';
+			}
+		}
+		for (var i in inputs){
+			var input = inputs[i];
+			if(input && inputs[i].type == "hidden"){
+				input.name = 'identifiers[' + index + '].location';
+			}			
+		}
 		for (var i in selects) {
 			var select = selects[i];
-			if (select && selects[i].name == "identifierType") {					
+			if (select && selects[i].name == "identifierType") {
 				select.name = 'identifiers[' + index + '].identifierType';
 				select.id = 'identifiers[' + index + '].identifierType';
 				$j(select).change(function(){
 					toggleLocationBoxAndIndentifierTypeWarning(this.options[this.selectedIndex].value,'identifiers'+ index +'_location',index);
 				});
-                $j(select).focus(function(){
-                    storeSelectedIdentifierType(this.options[this.selectedIndex].text);
-                });
+                		$j(select).focus(function(){
+                    			storeSelectedIdentifierType(this.options[this.selectedIndex].text);
+                		});
 			}
 			else if (select && selects[i].name == "location") {					
 				select.name = 'identifiers[' + index + '].location';
 				select.id = 'identifiers'+ index +'_location';
 			}
 		}
+		
 		$j(newrow).find('.locationNotApplicableClass').attr('id', 'identifiers'+ index +'_location_NA')
 		$j(newrow).find('#identifierTypeWarning').attr('id', 'identifierTypeWarning'+ index);
 
@@ -284,6 +297,7 @@
     }
 
     function toggleLocationBox(identifierType,location) {
+		console.log(location);
 		if (identifierType == '') {
 			$j('#'+location + '_NA').hide();
 			$j('#'+location).hide();
@@ -370,25 +384,82 @@
 					<%-- Don't display new identifiers that have been removed from the UI in previous submits that had errors--%>
 					<spring:nestedPath path="identifiers[${varStatus.index}]">
 					<tr id="existingIdentifiersRow[${varStatus.index}]" <c:if test="${id.voided}">style='display: none'</c:if>>					
-					<td class="idNumberDataColumn" valign="top">						
-						<spring:bind path="identifier">
-						<input type="text" size="30" name="${status.expression}" value="${status.value}" />					
-						</spring:bind>
+					<td class="idNumberDataColumn" valign="top">
+						<openmrs:userProperty key="defaultLocation" defaultValue="" var="userlocation"/>
+						<openmrs:hasPrivilege privilege="Change location">
+							<spring:bind path="identifier">
+								<input type="text" size="30" name="${status.expression}" value="${status.value}" />					
+							</spring:bind>
+						</openmrs:hasPrivilege>
+						<openmrs:hasPrivilege privilege="Change location" inverse="true">
+						<c:choose>	
+							<c:when test="${empty id.location || id.location.id == userlocation || id.identifierType.locationBehavior == 'NOT_USED'}">					
+								<spring:bind path="identifier">
+								<input type="text" size="30" name="${status.expression}" value="${status.value}" />					
+								</spring:bind>
+							</c:when>
+							<c:otherwise>
+								<spring:bind path="identifier">
+									${status.value}
+									<input name="${status.expression}" type="hidden" value="${status.value}"/>
+								</spring:bind>
+							</c:otherwise>
+						</c:choose>
+						</openmrs:hasPrivilege>
 					</td>
 					<openmrs:extensionPoint pointId="newPatientForm.identifierBody" />
 					<td class="idNumberDataColumn patientIdentifierTypeColumn" valign="top">
+						<openmrs:hasPrivilege privilege="Change location">
 						<form:select path="identifierType" onfocus="storeSelectedIdentifierType(this.options[this.selectedIndex].text)" onchange="toggleLocationBoxAndIndentifierTypeWarning(this.options[this.selectedIndex].value,'initialLocationBox${varStatus.index}', '${varStatus.index}');" >
 							<form:option value=""></form:option>
 							<form:options items="${identifierTypes}" itemValue="patientIdentifierTypeId" itemLabel="name" />
 					        </form:select>
+						</openmrs:hasPrivilege>
+						<openmrs:hasPrivilege privilege="Change location" inverse="true">
+						<c:choose>	
+							<c:when test="${empty id.location || id.location.id == userlocation || id.identifierType.locationBehavior == 'NOT_USED' }">
+								<form:select path="identifierType" onfocus="storeSelectedIdentifierType(this.options[this.selectedIndex].text)" onchange="toggleLocationBoxAndIndentifierTypeWarning(this.options[this.selectedIndex].value,'initialLocationBox${varStatus.index}', '${varStatus.index}');" >
+									<form:option value=""></form:option>
+									<form:options items="${identifierTypes}" itemValue="patientIdentifierTypeId" itemLabel="name" />
+					        		</form:select>
+							</c:when>
+							<c:otherwise>
+								${id.identifierType}
+								<input name="identifiers${varStatus.index}.identifierType" type="hidden" value="${id.identifierType}"/>
+							</c:otherwise>
+						</c:choose>
+						</openmrs:hasPrivilege>
 					</td>
 					<td class="idNumberDataColumn" valign="top">
 						<c:set var="behavior" value="${id.identifierType.locationBehavior}"/>
 						<div id="initialLocationBox${varStatus.index}" style="${(behavior == 'NOT_USED' || empty id.identifierType) ? 'display:none;' : ''}">
-							<form:select path="location">
-								<form:option value=""></form:option>
-								<form:options items="${locations}" itemValue="locationId" itemLabel="name" />
-							</form:select>
+							<openmrs:hasPrivilege privilege="Change location">
+								<form:select path="location">
+									<form:option value=""></form:option>
+									<form:options items="${locations}" itemValue="locationId" itemLabel="name" />
+								</form:select>
+							</openmrs:hasPrivilege>
+							<openmrs:hasPrivilege privilege="Change location" inverse="true">
+								<div style="border-style: groove;border-width: 1px;" >
+								<c:forEach items="${locations}" var="location" >
+									<c:choose>
+										<c:when test="${empty id.location || id.identifierType.locationBehavior == 'NOT_USED'}">
+											<c:if test="${location.id == userlocation}">
+												${location.name}
+												<input id="identifiers${varStatus.index}_location" name="identifiers[${varStatus.index}].location" type="hidden" value="${userlocation}"/>
+											</c:if>
+										</c:when>
+										<c:otherwise>
+											<c:if test="${location.id == id.location.id}">
+												${location.name}
+												<input id="identifiers${varStatus.index}_location" name="identifiers[${varStatus.index}].location" type="hidden" value="${id.location.id}"/>
+											</c:if>
+										</c:otherwise>
+									</c:choose>
+
+								</c:forEach>
+								</div>
+							</openmrs:hasPrivilege>
 						</div>
 						<div id="initialLocationBox${varStatus.index}_NA" style="${behavior == 'NOT_USED' ? '' : 'display:none;'}">
 							<c:if test="${identifierLocationUsed}">
@@ -440,6 +511,7 @@
 						</select>						
 					</td>
 					<td class="idNumberDataColumn" valign="top">
+						<openmrs:hasPrivilege privilege="Change location">
 						<select name="location" style="display: none;">
 							<option value=""></option>
 							<openmrs:forEachRecord name="location">
@@ -448,6 +520,18 @@
 								</option>
 							</openmrs:forEachRecord>
 						</select>
+						</openmrs:hasPrivilege>
+						<openmrs:hasPrivilege privilege="Change location" inverse="true">
+							<div title="location" style="display: none;border-style: groove;border-width: 1px;" >
+							<openmrs:userProperty key="defaultLocation" defaultValue="" var="userlocation"/>
+							<c:forEach items="${locations}" var="location" >
+								<c:if test="${location.id == userlocation}">
+									${location.name}
+									<input type="hidden" value="${userlocation}"/>
+								</c:if>
+							</c:forEach>
+							</div>
+						</openmrs:hasPrivilege>
 						<span class="locationNotApplicableClass" style="display:none;">
 							<c:if test="${identifierLocationUsed}">
 								<openmrs:message code="PatientIdentifier.location.notApplicable"/>

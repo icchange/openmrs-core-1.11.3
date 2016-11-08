@@ -133,7 +133,7 @@ public class DWRProgramWorkflowService {
 	 * @throws ParseException
 	 */
 	public void updatePatientProgram(Integer patientProgramId, String enrollmentDateYmd, String completionDateYmd,
-	        Integer locationId, Integer outcomeId) throws ParseException {
+	        Integer locationId, Integer outcomeId, String description) throws ParseException {
 		PatientProgram pp = Context.getProgramWorkflowService().getPatientProgram(patientProgramId);
 		Location loc = null;
 		if (locationId != null) {
@@ -185,6 +185,7 @@ public class DWRProgramWorkflowService {
 			pp.setDateCompleted(dateCompleted);
 			pp.setLocation(loc);
 			pp.setOutcome(outcomeConcept);
+			pp.setDescription(description);
 			Context.getProgramWorkflowService().savePatientProgram(pp);
 		}
 	}
