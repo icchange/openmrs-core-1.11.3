@@ -8613,6 +8613,7 @@
     <changeSet id="kmri-789-20162511-1" author="Mark Nicoll">
         <comment>Adding description to allergy</comment>
         <addColumn tableName="active_list_allergy">
+            <column name="description" type="varchar(255)" />
         </addColumn>
     </changeSet>
 
