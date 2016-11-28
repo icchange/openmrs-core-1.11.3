@@ -113,6 +113,8 @@ public class UserFormController {
 		if (!isNewUser(user)) {
 			model.addAttribute("changePassword", new UserProperties(user.getUserProperties()).isSupposedToChangePassword());
 		}
+		//added in via kmri 992
+		model.addAttribute("locations", Context.getLocationService().getAllLocations());
 		
 		// not using the default view name because I'm converting from an existing form
 		return "admin/users/userForm";
@@ -247,6 +249,14 @@ public class UserFormController {
 				errors.reject("error.User.secretQuestion.empty");
 			
 			new UserProperties(user.getUserProperties()).setSupposedToChangePassword(forcePassword);
+			
+			//set user location
+			System.out.println(request.getParameter("user_location"));
+			if (!request.getParameter("user_location").equals("")) {
+				user.setUserProperty("defaultLocation", request.getParameter("user_location"));
+			} else {
+				errors.reject("Error: location must be set");
+			}
 			
 			UserValidator uv = new UserValidator();
 			uv.validate(user, errors);

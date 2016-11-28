@@ -27,6 +27,7 @@
 		    	<param name="enumClassName">org.openmrs.activelist.AllergySeverity</param>
 		    </type>
 		</property>
+		<property name="description" type="java.lang.String" column="description" length="255"></property>
 		<many-to-one name="reaction" class="org.openmrs.Concept">
 			<column name="reaction_concept_id"/>
 		</many-to-one>

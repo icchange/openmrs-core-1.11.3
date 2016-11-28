@@ -49,6 +49,8 @@
 <openmrs:htmlInclude file="/scripts/calendar/calendar.js" />
 <openmrs:htmlInclude file="/scripts/validation.js" />
 
+<openmrs:userProperty key="defaultLocation" defaultValue="" var="userlocation" />
+
 <h2><openmrs:message code="User.title"/></h2>
 
 <c:if test="${user.retired}">
@@ -101,9 +103,42 @@
 					</spring:bind>
 				</td>
 			</tr>
+			<tr>
+				<td>Location <openmrs:hasPrivilege privilege="Change location"><span class="required">*</span></openmrs:hasPrivilege></td>
+				<td>
+					<openmrs:hasPrivilege privilege="Change location">
+						<select name="user_location">
+							<option value=""></option>
+		 					<c:forEach items="${locations}" var="loc">
+								<option value="${loc.locationId}" <c:if test="${loc.locationId == user.userProperties.defaultLocation}">selected</c:if>>${loc.name}</option>
+							</c:forEach>
+						</select>
+					</openmrs:hasPrivilege>
+					<openmrs:hasPrivilege privilege="Change location" inverse="true">
+						<c:forEach items="${locations}" var="loc">
+							<c:choose> 
+								<c:when test="${not empty user.userProperties.defaultLocation}">
+									<c:if test="${loc.locationId == user.userProperties.defaultLocation}">
+										${loc.name}
+										<input name="user_location" type="hidden" value="${user.userProperties.defaultLocation}" />
+									</c:if>
+								</c:when>
+								<c:otherwise>
+									<c:if test="${loc.locationId == userlocation}">
+										${loc.name}
+										<input name="user_location" type="hidden" value="${userlocation}" />
+									</c:if>
+								</c:otherwise>
+							</c:choose>
+						</c:forEach>
+					</openmrs:hasPrivilege>
+
+
+				</td>
+			</tr>
 		</table>
 	</fieldset>	
-	
+
 	<br/>
 	
 	<fieldset>

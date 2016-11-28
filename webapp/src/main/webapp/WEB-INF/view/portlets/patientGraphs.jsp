@@ -228,6 +228,7 @@ table#labTestTable th {
 				 }
 			  });
 		});
+
 			</c:if>
 	    </c:forEach>
 	

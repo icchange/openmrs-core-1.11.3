@@ -75,7 +75,7 @@
 </openmrs:hasPrivilege>
 
 <openmrs:hasPrivilege privilege="Patient Overview - View Allergies">
-	<div id="patientActiveListsAllergyBoxHeader" class="boxHeader${model.patientVariation}"><openmrs:message code="ActiveLists.allergy.title" /></div>test
+	<div id="patientActiveListsAllergyBoxHeader" class="boxHeader${model.patientVariation}"><openmrs:message code="ActiveLists.allergy.title" /></div>
 	<div id="patientActiveListsAllergyBox" class="box${model.patientVariation}">
 		<openmrs:portlet url="activeListAllergy" patientId="${patient.patientId}" parameters="type=allergy"/>
 	</div>

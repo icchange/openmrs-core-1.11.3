@@ -79,7 +79,7 @@
 		$j('#allergy_reaction_id').val("");
 		$j('#allergy_type').val("");
 		allergyStartDatePicker.setDate("${model.today}");
-		
+		$j('#allergy_description').val("");
 		$j('#allergy_severity').val("");
 		$j('#allergy_reaction').val("");
 
@@ -91,6 +91,7 @@
 	function handleAddAllergy() {
 		var allergen = $j('#allergy_concept_id').val();
 		var type = $j('#allergy_type').val();
+		var description = $j('#allergy_description').val();
 		var startDate = allergyStartDatePicker.getDateAsString();
 		var severity = $j('#allergy_severity').val();
 		var reaction = $j('#allergy_reaction_id').val();
@@ -103,10 +104,10 @@
 		var patientId = <c:out value="${model.patientId}" />;
 
 		if(currentlyEditingAllergyId == null) {
-			DWRPatientService.createAllergy(patientId, allergen, type, startDate, severity, reaction, refreshPage);
+			DWRPatientService.createAllergy(patientId, allergen, type, description, startDate, severity, reaction, refreshPage);
 		}
 		else {
-			DWRPatientService.saveAllergy(currentlyEditingAllergyId, allergen, type, startDate, severity, reaction, refreshPage);
+			DWRPatientService.saveAllergy(currentlyEditingAllergyId, allergen, type, description, startDate, severity, reaction, refreshPage);
 		}
 	}
 
@@ -114,7 +115,7 @@
 		$j('#allergyError').hide();
 		var allergy = findAllergy(activeListId);
 		if(allergy == null) return;
-
+		console.log(allergy);
 		currentlyEditingAllergyId = activeListId;
 		$j('#allergy_concept').val($j('#allergen_conceptName_' + activeListId).html().trim());
 		$j('#allergy_concept_id').val(allergy['allergenId']);
@@ -123,6 +124,7 @@
 		$j('#allergy_severity').val(allergy['severity']);
 		$j('#allergy_reaction').val($j('#reaction_conceptName_' + activeListId).html().trim());
 		$j('#allergy_reaction_id').val(allergy['reactionId']);
+		$j('#allergy_description').val(allergy['description']);
 
 		$j('#addActiveListAllergy').dialog("option", "title", '<openmrs:message code="ActiveLists.allergy.edit"/>');
 		$j('#addActiveListAllergy').dialog('open');
@@ -194,6 +196,7 @@
 			<td><openmrs:message code="ActiveLists.date"/></td>
 			<td><openmrs:message code="ActiveLists.allergy.reaction"/></td>
 			<td><openmrs:message code="ActiveLists.allergy.severity"/></td>
+			<td>Description</td>
 			<td></td>
 		</tr>
 		<c:forEach var="allergy" items="${model.allergies}">
@@ -206,6 +209,7 @@
 					allergies.push({"activeListId": "${allergy.activeListId}",
 									"allergenId": "${allergy.allergen.conceptId}",
 									"type": "${allergy.allergyType}",
+									"description":"${allergy.description}",
 									"startDate": parseDateFromStringToJs("<openmrs:datePattern/>", "<openmrs:formatDate date="${allergy.startDate}" type="textbox" />"),
 									"severity": "${allergy.severity}",
 									"reactionId": "${allergy.reaction.conceptId}",
@@ -225,6 +229,7 @@
 				<td><openmrs:formatDate date="${allergy.startDate}" type="textbox" /></td>
 				<td><span id="reaction_conceptName_${allergy.activeListId}"><openmrs_tag:concept conceptId="${allergy.reaction.conceptId}"/></span></td>
 				<td>${allergy.severity}</td>
+				<td>${allergy.description}</td>
 				<td>
 					<a href="javascript:doResolveAllergy(${allergy.activeListId})" title=""><img src="images/delete.gif" border="0" title="<openmrs:message code="ActiveLists.resolve"/>"/></a>
 				</td>
@@ -291,6 +296,12 @@
 				<td>
 					<input type="text" id="allergy_reaction" size="20"/>
 					<input type="hidden" id="allergy_reaction_id"/>
+				</td>
+			</tr>
+			<tr>
+				<td>Description</td>
+				<td>
+					<textarea id="allergy_description" ></textarea>
 				</td>
 			</tr>
 			<tr>

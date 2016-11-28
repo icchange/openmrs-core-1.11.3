@@ -624,8 +624,8 @@ public class DWRPatientService implements GlobalPropertyListener {
 	 * @param severity
 	 * @param reactionId
 	 */
-	public void createAllergy(Integer patientId, Integer allergenId, String type, String pStartDate, String severity,
-	        Integer reactionId) {
+	public void createAllergy(Integer patientId, Integer allergenId, String type, String description, String pStartDate,
+	        String severity, Integer reactionId) {
 		Date startDate = parseDate(pStartDate);
 		
 		Patient patient = Context.getPatientService().getPatient(patientId);
@@ -634,7 +634,8 @@ public class DWRPatientService implements GlobalPropertyListener {
 		AllergySeverity allergySeverity = StringUtils.isBlank(severity) ? null : AllergySeverity.valueOf(severity);
 		AllergyType allergyType = StringUtils.isBlank(type) ? null : AllergyType.valueOf(type);
 		
-		Allergy allergy = new Allergy(patient, allergyConcept, startDate, allergyType, reactionConcept, allergySeverity);
+		Allergy allergy = new Allergy(patient, allergyConcept, startDate, allergyType, description, reactionConcept,
+		        allergySeverity);
 		Context.getPatientService().saveAllergy(allergy);
 	}
 	
@@ -648,13 +649,14 @@ public class DWRPatientService implements GlobalPropertyListener {
 	 * @param severity
 	 * @param reactionId
 	 */
-	public void saveAllergy(Integer activeListItemId, Integer allergenId, String type, String pStartDate, String severity,
-	        Integer reactionId) {
+	public void saveAllergy(Integer activeListItemId, Integer allergenId, String type, String description,
+	        String pStartDate, String severity, Integer reactionId) {
 		//get the allergy
 		Allergy allergy = Context.getPatientService().getAllergy(activeListItemId);
 		allergy.setAllergen(Context.getConceptService().getConcept(allergenId));
 		allergy.setAllergyType(type);
 		allergy.setStartDate(parseDate(pStartDate));
+		allergy.setDescription(description);
 		allergy.setSeverity(severity);
 		allergy.setReaction((reactionId == null) ? null : Context.getConceptService().getConcept(reactionId));
 		Context.getPatientService().saveAllergy(allergy);
