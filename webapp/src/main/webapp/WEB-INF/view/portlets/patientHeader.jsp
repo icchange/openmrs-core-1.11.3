@@ -27,8 +27,7 @@ var jPatientHeader = jQuery.noConflict(true);
 		</div>
 	</div>
 </c:if>
-<openmrs:userProperty key="defaultLocation" defaultValue="" var="userlocation" />
-
+<openmrs:userProperty key="defaultLocation" defaultValue="-1" var="userlocation" />
 <%-- Header showing preferred name, id, and treatment status --%>
 <div id="patientHeader" class="boxHeader${model.patientVariation}">
 <div id="patientHeaderPatientName"><a target="_self" href="${pageContext.request.contextPath}/patientDashboard.form?patientId=${model.patient.id}"><c:out value="${model.patient.personName}" /></a></div>
