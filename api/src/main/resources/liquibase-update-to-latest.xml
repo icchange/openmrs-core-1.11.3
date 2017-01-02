@@ -8617,4 +8617,11 @@
         </addColumn>
     </changeSet>
 
+    <changeSet id="kmri-789-20162511-2" author="Mark Nicoll">
+        <comment>fix spelling error</comment>
+        <sql>
+            ALTER TABLE `active_list_allergy` CHANGE COLUMN `descroption` `description` VARCHAR(255);
+        </sql>
+    </changeSet>
+
 </databaseChangeLog>
