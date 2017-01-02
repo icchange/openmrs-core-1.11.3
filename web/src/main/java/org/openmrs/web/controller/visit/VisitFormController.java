@@ -24,6 +24,7 @@ import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openmrs.Encounter;
+import org.openmrs.Location;
 import org.openmrs.Visit;
 import org.openmrs.VisitAttribute;
 import org.openmrs.VisitAttributeType;
@@ -51,6 +52,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.support.SessionStatus;
 import org.springframework.web.context.request.WebRequest;
+import org.openmrs.util.LocationUtility;
 
 /**
  * Controller class for creating, editing, deleting, restoring and purging a visit
@@ -87,9 +89,11 @@ public class VisitFormController {
 		}
 		
 		addEncounterAndObservationCounts(visit, null, model);
-		String location = Context.getAuthenticatedUser().getUserProperty(OpenmrsConstants.USER_PROPERTY_DEFAULT_LOCATION);
-		model.addAttribute("locationvalue", location);
-		model.addAttribute("locationname", Context.getLocationService().getLocation(Integer.parseInt(location)));
+		Location location = LocationUtility.getDefaultLocation();
+		if (location != null) {
+			model.addAttribute("locationvalue", location.getId());
+			model.addAttribute("locationname", location);
+		}
 		return VISIT_FORM;
 	}
 	
@@ -135,9 +139,11 @@ public class VisitFormController {
 		System.out.println("save visit");
 		
 		//add location information to form. form requires this information as of kmri 782
-		String location = Context.getAuthenticatedUser().getUserProperty(OpenmrsConstants.USER_PROPERTY_DEFAULT_LOCATION);
-		model.addAttribute("locationvalue", location);
-		model.addAttribute("locationname", Context.getLocationService().getLocation(Integer.parseInt(location)));
+		Location location = LocationUtility.getDefaultLocation();
+		if (location != null) {
+			model.addAttribute("locationvalue", location.getId());
+			model.addAttribute("locationname", location);
+		}
 		
 		String[] ids = ServletRequestUtils.getStringParameters(request, "encounterIds");
 		List<Integer> encounterIds = new ArrayList<Integer>();
@@ -230,9 +236,11 @@ public class VisitFormController {
 	public String endVisit(@ModelAttribute(value = "visit") Visit visit,
 	        @RequestParam(value = "stopDate", required = false) String stopDate, ModelMap model, HttpServletRequest request) {
 		System.out.println("end visit " + stopDate);
-		String location = Context.getAuthenticatedUser().getUserProperty(OpenmrsConstants.USER_PROPERTY_DEFAULT_LOCATION);
-		model.addAttribute("locationvalue", location);
-		model.addAttribute("locationname", Context.getLocationService().getLocation(Integer.parseInt(location)));
+		Location location = LocationUtility.getDefaultLocation();
+		if (location != null) {
+			model.addAttribute("locationvalue", location.getId());
+			model.addAttribute("locationname", location);
+		}
 		
 		if (!StringUtils.hasLength(stopDate)) {
 			Context.getVisitService().endVisit(visit, null);

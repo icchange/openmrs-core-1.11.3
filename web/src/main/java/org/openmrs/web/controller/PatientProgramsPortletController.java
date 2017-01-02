@@ -18,6 +18,7 @@ import org.openmrs.Location;
 import org.openmrs.Program;
 import org.openmrs.api.context.Context;
 import org.openmrs.util.OpenmrsConstants;
+import org.openmrs.util.LocationUtility;
 
 public class PatientProgramsPortletController extends PortletController {
 	
@@ -30,9 +31,10 @@ public class PatientProgramsPortletController extends PortletController {
 			List<Location> locations = Context.getLocationService().getAllLocations();
 			model.put("locations", locations);
 		}
-		String loc = Context.getAuthenticatedUser().getUserProperty(OpenmrsConstants.USER_PROPERTY_DEFAULT_LOCATION);
-		Location ltemp = Context.getLocationService().getLocation(Integer.parseInt(loc));
-		model.put("userlocation", ltemp.getName());
+		Location ltemp = LocationUtility.getDefaultLocation();
+		if (ltemp != null) {
+			model.put("userlocation", ltemp.getName());
+		}
 	}
 	
 }

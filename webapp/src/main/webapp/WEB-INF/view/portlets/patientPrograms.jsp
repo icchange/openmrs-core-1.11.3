@@ -347,7 +347,7 @@
 				</select>
 				</openmrs:hasPrivilege>
 				<openmrs:hasPrivilege privilege="Change location" inverse="true">
-					<openmrs:userProperty key="defaultLocation" defaultValue="" var="userlocation"/>
+					<openmrs:userProperty key="defaultLocation" defaultValue="-1" var="userlocation"/>
 					<input name="locationId" id="programLocationElement" type="hidden" value="${userlocation}" />
 					<c:forEach var="location" items="${model.locations}">
 						<c:if test="${location.locationId == userlocation}">
@@ -442,12 +442,12 @@
 
 		<table width="100%" border="0">
 			<tr bgcolor="whitesmoke">
-				<td><openmrs:message code="Program.program"/></td>
-				<td><openmrs:message code="Program.dateEnrolled"/></td>
-				<td><openmrs:message code="Program.location"/></td>
-				<td><!-- <openmrs:message code="Program.dateCompleted"/> -->Exit Date</td>
-				<td><openmrs:message code="Program.state"/></td>
-				<td><openmrs:message code="Program.outcome"/></td>
+				<td><b><openmrs:message code="Program.program"/></b></td>
+				<td><b><openmrs:message code="Program.dateEnrolled"/></b></td>
+				<td><b><openmrs:message code="Program.location"/></b></td>
+				<td><b><!-- <openmrs:message code="Program.dateCompleted"/> -->Exit Date</b></td>
+				<td><b><openmrs:message code="Program.state"/></b></td>
+				<td><b><openmrs:message code="Program.outcome"/></b></td>
 			</tr>
 			<c:set var="bgColor" value="whitesmoke" />
 			<c:forEach var="program" items="${model.patientPrograms}">
@@ -656,7 +656,7 @@
 					</select>
 					</openmrs:hasPrivilege>
 					<openmrs:hasPrivilege privilege="Change location" inverse="true">
-						<openmrs:userProperty key="defaultLocation" defaultValue="" var="userlocation"/>
+						<openmrs:userProperty key="defaultLocation" defaultValue="-1" var="userlocation"/>
 						<input name="locationId" id="programLocationElement" type="hidden" value="${userlocation}" />
 						<c:forEach var="location" items="${model.locations}">
 							<c:if test="${location.locationId == userlocation}">

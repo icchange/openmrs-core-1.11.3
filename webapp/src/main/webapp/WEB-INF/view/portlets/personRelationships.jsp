@@ -243,10 +243,10 @@
 	<table style="margin: 0px 0px 1em 2em;" cellpadding="3" cellspacing="0" id="relationshipTable" class="relTable">
 		<thead>
 			<tr bgcolor="whitesmoke">
-				<td><openmrs:message code="Relationship.relative"/></td>
-				<td><openmrs:message code="Relationship.relationship"/></td>
-				<td><openmrs:message code="Relationship.startDate"/></td>
-				<td><openmrs:message code="Relationship.endDate"/></td>
+				<td><b><openmrs:message code="Relationship.relative"/></b></td>
+				<td><b><openmrs:message code="Relationship.relationship"/></b></td>
+				<td><b><openmrs:message code="Relationship.startDate"/></b></td>
+				<td><b><openmrs:message code="Relationship.endDate"/></b></td>
 				<td></td>
 				<td></td>
 			</tr>

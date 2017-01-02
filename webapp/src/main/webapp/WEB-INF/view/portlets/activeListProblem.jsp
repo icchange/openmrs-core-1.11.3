@@ -167,10 +167,10 @@
 	<c:otherwise>
 	<table style="margin: 0px 0px 1em 2em;" cellpadding="3" cellspacing="0" id="problemTable" class="alTable">
 		<tr bgcolor="whitesmoke">
-			<td><openmrs:message code="ActiveLists.problem.problem"/></td>
-			<td><openmrs:message code="ActiveLists.date"/></td>
-			<td><openmrs:message code="ActiveLists.problem.status"/></td>
-			<td><openmrs:message code="ActiveLists.problem.comments"/></td>
+			<td><b><openmrs:message code="ActiveLists.problem.problem"/></b></td>
+			<td><b><openmrs:message code="ActiveLists.date"/></b></td>
+			<td><b><openmrs:message code="ActiveLists.problem.status"/></b></td>
+			<td><b><openmrs:message code="ActiveLists.problem.comments"/></b></td>
 			<td></td>
 		</tr>
 		<c:forEach var="problem" items="${model.problems}">

@@ -192,11 +192,11 @@
 	<c:otherwise>
 	<table style="margin: 0px 0px 1em 2em;" cellpadding="3" cellspacing="0" id="allergyTable" class="alTable">
 		<tr bgcolor="whitesmoke">
-			<td><openmrs:message code="ActiveLists.allergy.allergen"/></td>
-			<td><openmrs:message code="ActiveLists.date"/></td>
-			<td><openmrs:message code="ActiveLists.allergy.reaction"/></td>
-			<td><openmrs:message code="ActiveLists.allergy.severity"/></td>
-			<td>Description</td>
+			<td><b><openmrs:message code="ActiveLists.allergy.allergen"/></b></td>
+			<td><b><openmrs:message code="ActiveLists.date"/></b></td>
+			<td><b><openmrs:message code="ActiveLists.allergy.reaction"/></b></td>
+			<td><b><openmrs:message code="ActiveLists.allergy.severity"/></b></td>
+			<td><b>Description</b></td>
 			<td></td>
 		</tr>
 		<c:forEach var="allergy" items="${model.allergies}">
