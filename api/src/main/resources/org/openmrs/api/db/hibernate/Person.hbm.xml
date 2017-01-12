@@ -46,7 +46,10 @@
 
 		<property name="deathdateEstimated" type="java.lang.Boolean"
 			column="deathdate_estimated" />
+
+		<property name="deathLocation" type="java.lang.Integer" column="death_location" />
 									
+
 		<many-to-one name="causeOfDeath" class="Concept"
 			not-null="false" column="cause_of_death" />
 

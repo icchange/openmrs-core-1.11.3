@@ -1231,11 +1231,20 @@
 					<%--<input type="text" name="causeOfDeath" value="${status.value}" id="causeOfDeath"/>--%>
 					<c:if test="${status.errorMessage != ''}"><span class="error">${status.errorMessage}</span></c:if>
 				</spring:bind>
-				
+
+				<openmrs:userProperty key="defaultLocation" defaultValue="" var="userlocation"/>
+				<spring:bind path="patient.deathLocation">
+					<input name="${status.expression}" type="hidden" value="${userlocation}" />
+				</spring:bind>
+
+
 				<script type="text/javascript">				
 					//set up death info fields
 					personDeadClicked(document.getElementById("personDead"));
 				</script>
+
+	
+
 			</div>
 		</td>
 	</tr>

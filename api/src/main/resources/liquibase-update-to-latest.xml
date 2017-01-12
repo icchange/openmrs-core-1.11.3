@@ -8617,11 +8617,11 @@
         </addColumn>
     </changeSet>
 
-    <changeSet id="kmri-789-20162511-2" author="Mark Nicoll">
-        <comment>fix spelling error</comment>
-        <sql>
-            ALTER TABLE `active_list_allergy` CHANGE COLUMN `descroption` `description` VARCHAR(255);
-        </sql>
+    <changeSet id="kmri-789-20171101-1" author="Mark Nicoll">
+        <comment>Add death location to person</comment>
+        <addColumn tableName="person">
+            <column name="death_location" type="int" />
+        </addColumn>
     </changeSet>
 
 </databaseChangeLog>

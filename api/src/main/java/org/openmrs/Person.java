@@ -64,6 +64,8 @@ public class Person extends BaseOpenmrsData implements java.io.Serializable {
 	
 	private Date deathDate;
 	
+	private Integer deathLocation;
+	
 	private Concept causeOfDeath;
 	
 	private User personCreator;
@@ -286,6 +288,16 @@ public class Person extends BaseOpenmrsData implements java.io.Serializable {
 	@Element(required = false)
 	public void setCauseOfDeath(Concept causeOfDeath) {
 		this.causeOfDeath = causeOfDeath;
+	}
+	
+	@Element(required = false)
+	public Integer getDeathLocation() {
+		return this.deathLocation;
+	}
+	
+	@Element(required = false)
+	public void setDeathLocation(Integer location) {
+		this.deathLocation = location;
 	}
 	
 	/**
