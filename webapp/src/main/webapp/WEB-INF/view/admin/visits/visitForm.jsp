@@ -102,7 +102,7 @@ $j(document).ready( function() {
 		text-align: center
 	}
 </style>
-
+<openmrs:userProperty key="defaultLocation" defaultValue="" var="userlocation"/>
 <spring:hasBindErrors name="visit">
     <openmrs_tag:errorNotify errors="${errors}" />
 </spring:hasBindErrors>
@@ -237,7 +237,7 @@ $j(document).ready( function() {
 			<td>
 				
 				<spring:bind path="location">
-				<openmrs_tag:locationField formFieldName="${status.expression}" initialValue="${status.value}" restricted="${locationvalue}"/>
+				<openmrs_tag:locationField formFieldName="${status.expression}" initialValue="${status.value}" restricted="${userlocation}"/>
 				<c:if test="${status.errorMessage != ''}"><span class="error">${status.errorMessage}</span></c:if>
 				</spring:bind>
 			</td>
